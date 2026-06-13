@@ -4,7 +4,7 @@ function calculateSimpleRevenue(purchase, _product) {
    const discountMult = 1 - (discount / 100);
    const revenue = (sale_price * quantity) * discountMult;
 
-   return revenue;
+   return +revenue.toFixed(2);
 }
 
 function calculateBonusByProfit(index, total, seller) {
