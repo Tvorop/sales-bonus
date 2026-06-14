@@ -1,10 +1,6 @@
 function calculateSimpleRevenue(purchase, _product) {
-   const {discount, sale_price, quantity} = purchase;
-
-   const discountMult = 1 - (discount / 100);
-   const revenue = (sale_price * quantity) * discountMult;
-
-   return +revenue.toFixed(2);
+   const discount = 1 - (purchase.discount / 100);
+   return purchase.sale_price * purchase.quantity * discount;
 }
 
 function calculateBonusByProfit(index, total, seller) {
@@ -59,8 +55,8 @@ function analyzeSalesData(data, options) {
             const itemRevenue = calculateRevenue(item, product);
             const itemProfit = itemRevenue - cost;
 
-            seller.revenue += itemRevenue;
-            seller.profit += itemProfit;
+            seller.revenue = +(seller.revenue + itemRevenue).toFixed(2);;
+            seller.profit = seller.profit + itemProfit;
 
             if (!seller.products_sold[item.sku]) {
                 seller.products_sold[item.sku] = 0;
@@ -73,15 +69,16 @@ function analyzeSalesData(data, options) {
     sellerStats.sort((a, b) => b.profit - a.profit);
 
     sellerStats.forEach((seller, index) => {
+        seller.profit = +seller.profit.toFixed(2);
         seller.bonus = calculateBonus(index, sellerStats.length, seller);
-        seller.top_products = Object.entries(seller.products_sold).map(([sku, quantity]) => ({ sku, quantity })).sort((a, b) => b.quantity - a.quantity).slice(0, 10);
+        seller.top_products = Object.entries(seller.products_sold).map(([sku, quantity]) => ({sku, quantity})).sort((a, b) => b.quantity - a.quantity).slice(0, 10);
     });
 
     return sellerStats.map(seller => ({
         seller_id: seller.id,
         name: seller.name,
         revenue: +seller.revenue.toFixed(2), 
-        profit: +seller.profit.toFixed(2),
+        profit: seller.profit,
         sales_count: seller.sales_count,
         top_products: seller.top_products,
         bonus: +seller.bonus.toFixed(2)
